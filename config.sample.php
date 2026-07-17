@@ -6,3 +6,4 @@ define('WORKER_PATH', '/var/www/html/weather.bot');
 define('WORKER_CACHE_PATH', '/var/cache/weather.bot');
 define('WORKER_LOG_PATH', '/var/log/weather.bot');
 define('MAX_RETRIES', 3);
+define('REQUEST_TIMEOUT', 8);

@@ -12,7 +12,11 @@ function sendMessage ($msg) {
     'http' => [
       'method' => 'POST',
       'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-      'content' => http_build_query($msg)
+      'content' => http_build_query($msg),
+      'timeout' => REQUEST_TIMEOUT
+    ],
+    'socket' => [
+      'timeout' => REQUEST_TIMEOUT
     ]
   ];
   $context = stream_context_create($options);
