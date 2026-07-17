@@ -6,33 +6,37 @@ function writeLog ($msg) {
   file_put_contents(WORKER_LOG_PATH . '/weather.bot.error.log', date('Y-m-d H:i:s', time()) . '   ' . "$msg\n", FILE_APPEND | LOCK_EX);
 }
 
-function sendMessage ($msg) {
-  $url = 'https://api.telegram.org/bot' . TOKEN . '/sendMessage';
+function requestApi ($url, $msg = false) {
   $options = [
     'http' => [
-      'method' => 'POST',
-      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-      'content' => http_build_query($msg),
+      'method' => $msg === false ? 'GET' : 'POST',
       'timeout' => REQUEST_TIMEOUT
     ],
     'socket' => [
       'timeout' => REQUEST_TIMEOUT
     ]
   ];
+
+  if ($msg !== false) {
+    $options['http']['header'] = "Content-type: application/x-www-form-urlencoded\r\n";
+    $options['http']['content'] = http_build_query($msg);
+  }
+
   $context = stream_context_create($options);
+
   return file_get_contents($url, false, $context);
 }
 
-function sendMessageWithRetry ($msg) {
+function requestApiWithRetry ($url, $msg = false) {
   $try = 0;
 
   while ($try < MAX_RETRIES) {
     try {
-      $ret = sendMessage($msg);
+      $ret = requestApi($url, $msg);
       $ret = json_decode($ret, true);
 
       if (isset($ret['ok']) && $ret['ok']) {
-        break;
+        return $ret;
       } else {
         ++$try;
         writeLog('API returned the following result: ' . json_encode($ret));
@@ -42,4 +46,29 @@ function sendMessageWithRetry ($msg) {
       writeLog(json_encode($e));
     }
   }
+
+  return null;
+}
+
+function sendMessage ($msg) {
+  $url = 'https://api.telegram.org/bot' . TOKEN . '/sendMessage';
+  return requestApi($url, $msg);
+}
+
+function sendMessageWithRetry ($msg) {
+  $url = 'https://api.telegram.org/bot' . TOKEN . '/sendMessage';
+  return requestApiWithRetry($url, $msg);
+}
+
+function isMessageWithPhoto ($msg) {
+  return isset($msg['photo']);
+}
+
+function getPhotoUrl ($msg) {
+  if (! isMessageWithPhoto($msg)) return null;
+
+  $fileId = end($msg['photo'])['file_id'];
+  $getFileUrl = 'https://api.telegram.org/bot' . TOKEN . "/getFile?file_id={$fileId}";
+  $filePath = requestApiWithRetry($getFileUrl);
+  return 'https://api.telegram.org/file/bot' . TOKEN . "/{$filePath}";
 }
