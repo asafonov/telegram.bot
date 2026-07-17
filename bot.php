@@ -1,6 +1,7 @@
 <?php
 
 require_once('config.php');
+require_once('message.php');
 
 function doCronLogic ($input) {
   //@TODO implement cron logic here, if needed
