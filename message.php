@@ -3,7 +3,7 @@
 require_once('config.php');
 
 function writeLog ($msg) {
-  file_put_contents(WORKER_LOG_PATH . '/weather.bot.error.log', date('Y-m-d H:i:s', time()) . '   ' . "$msg\n", FILE_APPEND | LOCK_EX);
+  file_put_contents(WORKER_LOG_PATH . '/' . BOT_NAME . '.error.log', date('Y-m-d H:i:s', time()) . '   ' . "$msg\n", FILE_APPEND | LOCK_EX);
 }
 
 function requestApi ($url, $msg = false) {
