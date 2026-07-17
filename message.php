@@ -61,14 +61,19 @@ function sendMessageWithRetry ($msg) {
 }
 
 function isMessageWithPhoto ($msg) {
-  return isset($msg['photo']);
+  return isset($msg['message']['photo']);
 }
 
 function getPhotoUrl ($msg) {
   if (! isMessageWithPhoto($msg)) return null;
 
-  $fileId = end($msg['photo'])['file_id'];
+  $fileId = end($msg['message']['photo'])['file_id'];
   $getFileUrl = 'https://api.telegram.org/bot' . TOKEN . "/getFile?file_id={$fileId}";
   $filePath = requestApiWithRetry($getFileUrl);
-  return 'https://api.telegram.org/file/bot' . TOKEN . "/{$filePath}";
+
+  if (! isset($filePath['result']['file_path'])) {
+    return null;
+  }
+
+  return 'https://api.telegram.org/file/bot' . TOKEN . "/{$filePath['result']['file_path']}";
 }
