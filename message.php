@@ -39,11 +39,11 @@ function requestApiWithRetry ($url, $msg = false) {
         return $ret;
       } else {
         ++$try;
-        writeLog('API returned the following result: ' . json_encode($ret));
+        writeLog('API returned the following result: ' . json_encode($ret) . "\n  url: $url\n  msg: " . json_encode($msg));
       }
     } catch (Exception $e) {
       ++$try;
-      writeLog(json_encode($e));
+      writeLog(json_encode($e) . "\n  url: $url\n  msg: " . json_encode($msg));
     }
   }
 
