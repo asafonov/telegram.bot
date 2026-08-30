@@ -14,6 +14,10 @@ function getLastCommand ($chatId) {
   return file_get_contents(WORKER_CACHE_PATH . '/' . $chatId . '/last_command');
 }
 
+function emoji ($code) {
+  return mb_convert_encoding('&#x' . $code . ';', 'UTF-8', 'HTML-ENTITIES');
+}
+
 function requestApi ($url, $msg = false, $httpOptions = false) {
   $options = [
     'http' => [
@@ -26,8 +30,8 @@ function requestApi ($url, $msg = false, $httpOptions = false) {
   ];
 
   if ($msg !== false) {
-    $options['http']['header'] = "Content-type: application/x-www-form-urlencoded\r\n";
-    $options['http']['content'] = http_build_query($msg);
+    $options['http']['header'] = "Content-type: application/json\r\n";
+    $options['http']['content'] = json_encode($msg);
   }
 
   if ($httpOptions !== false) {
@@ -84,6 +88,11 @@ function sendMessage ($msg) {
 
 function sendMessageWithRetry ($msg) {
   $url = 'https://api.telegram.org/bot' . TOKEN . '/sendMessage';
+  return requestApiWithRetry($url, $msg);
+}
+
+function sendRichMessageWithRetry ($msg) {
+  $url = 'https://api.telegram.org/bot' . TOKEN . '/sendRichMessage';
   return requestApiWithRetry($url, $msg);
 }
 
