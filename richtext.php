@@ -26,6 +26,15 @@ class RichText {
     return $this;
   }
 
+  function code ($text) {
+    $block = [
+      'type' => 'code',
+      'text' => $text
+    ];
+
+    return $this->p($block);
+  }
+
   function get() {
     return $this->blocks;
   }
